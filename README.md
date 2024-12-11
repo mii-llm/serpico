@@ -1,5 +1,7 @@
 ## Serpico
 
+![Serpico](https://pad.mymovies.it/filmclub/2006/02/302/locandina.jpg "Serpico security agent")
+
 This repository contains a suite of specialized agents designed to perform various autonomous cyber security tasks. Each agent is powered by **Serpe**, a fine-tuned AI model specialized in cyber security applications. These agents are tailored to assist security professionals, automate routine tasks, and enhance the efficiency of cyber defense operations.
 
 ## Features
