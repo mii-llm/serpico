@@ -8,11 +8,10 @@ import socket
 
 # Define the base class
 class AgentClass:
-    def __init__(self, name, description ,llm, instruction, messages):
+    def __init__(self, name, description ,llm, messages):
         self.name = name
         self.llm = llm
         self.description = description
-        self.instruction = instruction
         self.messages = messages
          
     def display_info(self):

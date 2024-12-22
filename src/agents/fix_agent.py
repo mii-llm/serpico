@@ -9,13 +9,13 @@ from agents.agent_types import AgentClass
 
 
 class FixAgent(AgentClass):
-    def __init__(self, name, description, llm, instruction, messages):
+    def __init__(self, name, description, llm, messages):
         os = self._os_detection()
         
         if not messages:
             messages = [
                 {"role": "system", "content": f''' 
-                   You are an AI hacker assistant with access to a bash shell that returns this error {instruction} on {os}. Provide the command to fix the error please
+                   You are an AI hacker assistant with access to a bash shell on {os}. Provide the command to fix the error please
                    <command_instructions> When collaborating with the pentester on exploiting vulnerabilities, the AI hacker assistant should follow these steps: 
                    1. Before invoking a command, think for one sentence in <bashThinking> tags to evaluate if the command is appropriate for the scenario. 
                    2. Wrap the command in opening and closing `<bashScript>` tags. 
@@ -24,13 +24,9 @@ class FixAgent(AgentClass):
                    6. If unsure about a command or tool output, the assistant should default to not running or sharing it. 
                    7. The assistant does not have persistence on the target system, so the assistant can execute only commands from outside the target system (`nmap`, `curl`, ..., but not commands ON the target machine). 
                    If the pentester needs to interact with the target system (privilege escalation), the assistant should only guide the pentester on how to proceed. </command_instructions>
-                '''},
-                {
-                    "role": "user",
-                    "content": f"How can i Fix this error {os} on {os}"
-            }
+                '''}
         ]
-        super().__init__(name, llm, description, instruction, messages)
+        super().__init__(name, llm, description, messages)
 
     def display_info(self):
         return f"TypeA: {self.name} with feature {self.special_feature}"

@@ -3,6 +3,7 @@ from openai import OpenAI
 from agents.command_agent import CommandAgent
 from agents.fix_agent import FixAgent
 from agents.meta_planner_agent import PlannerAgent
+from schema.plan import Plan
 
 client = OpenAI(    
     base_url="http://localhost:8000/v1",
@@ -29,29 +30,27 @@ content = completion.choices[0].message.content
 # Function to create an object based on type
 def create_object(class_type, **kwargs):
     if class_type == "CommandAgent":
-        return CommandAgent(kwargs['name'],kwargs['description'],kwargs['llm'],kwargs['instruction'], kwargs['messages'])
+        return CommandAgent(kwargs['name'],kwargs['description'],kwargs['llm'], kwargs['messages'])
     elif class_type == "FixAgent":
-        return FixAgent(kwargs['name'],kwargs['description'],kwargs['llm'],kwargs['instruction'], kwargs['messages'])
+        return FixAgent(kwargs['name'],kwargs['description'],kwargs['llm'], kwargs['messages'])
     elif class_type == "PlannerAgent":
-        return PlannerAgent(kwargs['name'],kwargs['description'],kwargs['llm'],kwargs['instruction'], kwargs['messages'])
+        return PlannerAgent(kwargs['name'],kwargs['description'],kwargs['llm'], kwargs['messages'])
     else:
         raise ValueError(f"Unknown class type: {class_type}")
 
 # Example usage
 if __name__ == "__main__":
     # Creating objects of different types
-    obj_a = create_object("CommandAgent", 
+    command_agent = create_object("CommandAgent", 
                             name="CommandAgent", 
                             description="An agent capable of creating and executing bash commands",
                             llm=client, 
-                            instruction="Start with a network scan", 
                             messages=[] )
     
     obj_b = create_object("FixAgent", 
                             name="FixAgent",
                             description="An agent devote to fix command line bash error",
                             llm=client,
-                            instruction="Start with a network scan", 
                             messages=[],
                             special_feature="High Speed")
     
@@ -59,10 +58,37 @@ if __name__ == "__main__":
                             name="PlannerAgent",
                             description="An agent who plan a series to actions that are used to guide the agents step by step",
                             llm=client,
-                            instruction="let's start with the network scan  as described in the walkthrough. I'm on the same network as the target", 
                             messages=[],
                             )
-    planner.run(client)
+    
+    #action_plans = planner.run(client, instruction="let's start with the network scan  as described in the walkthrough. I'm on the same network as the target", )
+    action_plans = planner.run(client, instruction="check for vulnerabilities in my network", )
+    #print(action_plans)
+
+    print(action_plans[0])
+    instruction = f'''Because of {action_plans[0].description} 
+                      perform a {action_plans[0].title} 
+                    '''
+    
+    agent_name, output = command_agent.run(client, instruction=instruction, messages_from_main=[])
+    print(agent_name)
+    print(output)
+
+   # while()
+
+    main_conversations = [{'role' : 'user', 'content' : 'check for vulnerabilities in my network'},
+                          {'role' : 'assistant', 'content' : action_plans[0].description},
+                          {'role' : 'user', 'content' : output},
+                         # {'role' : 'assistant', 'content' : f'{action_plans[1].title}\n{action_plans[1].description}'}
+                          ]
+    
+
+    print('OUTPUT')
+    print(output)
+    print(main_conversations)
+    agent_name, output = command_agent.run(client, instruction=f'{action_plans[1].title}\n{action_plans[1].description}', messages_from_main=main_conversations)
+
+    
 
     #obj_b = create_object("TypeB", name="ObjectB", level=5)
     #obj_c = create_object("TypeC", name="ObjectC", category="Premium")
